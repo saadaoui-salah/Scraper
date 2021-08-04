@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+  {% block title %}Comments |{% endblock %}
+  {% block content %}
+  <div style="margin-top: -80px;" id="options" class="position-fixed container-fluid">
+    <div>
+    <div style="width: 100%;" class="card">
+      <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <div class="form-check mt-1">
+                <input class="form-check-input" type="checkbox" id="InstaCheckbox">
+                <label class="form-check-label" for="InstaCheckbox">
+                  Instagrame
+                </label>
+              </div>
+            </div>
+            <div class="col">
+              <div class="form-check mt-1">
+                <input class="form-check-input" type="checkbox" id="twitterCheckbox">
+                <label class="form-check-label" for="twitterCheckbox">
+                  Twitter
+                </label>
+              </div>
+            </div>
+            <div class="col-4">
+              <input class="form-control fluid form-control-md" type="text" id="search_input" placeholder="search" aria-label=".form-control-sm example">
+            </div>
+            <div class="col">
+              <div class="btn btn-primary btn-md" id="search">Search</div>
+            </div>
+            <div class="col">
+              <div class="form-check mt-1">
+                <input class="form-check-input" type="checkbox" id="youtubeCheckbox">
+                <label class="form-check-label" for="youtubeCheckbox">
+                  Youtube
+                </label>
+              </div>
+            </div>
+              <div class="col">
+                <div class="form-check mt-1">
+                  <input class="form-check-input" type="checkbox" id="orderCheckbox">
+                  <label class="form-check-label" for="orderCheckbox">
+                    Order By Date
+                  </label>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: 90px;" class="container-fluid d-flex flex-wrap">
+    <table class=" table table-bordered">
+      <thead class="table-dark">
+        <tr>
+          <th class="text-center" scope="col-2">id</th>
+          <th class="text-center" scope="col-7">comment</th>
+          <th class="text-center" scope="col-3">date</th>
+        </tr>
+      </thead>
+      <tbody id="body">
+      </tbody>
+    </table>
+  </div>
+  <script>
+    const MAIN_URL = "http://127.0.0.1:5000/"
+    const API_KEY = "/api_key"
+    const twitterCheckbox = document.getElementById("twitterCheckbox")
+    const youtubeCheckbox = document.getElementById("youtubeCheckbox")
+    const InstaCheckbox = document.getElementById("InstaCheckbox")
+    const orderCheckbox = document.getElementById("orderCheckbox")
+    const searchBtn = document.getElementById("search")
+    const searchInput = document.getElementById("search_input")
+    function getComments(checkbox, url, id) {
+      if (checkbox) {
+        let xhr = new XMLHttpRequest()
+        let content = ''
+        xhr.open("GET", MAIN_URL + url + API_KEY, true)
+        xhr.onload = function () {
+          if (xhr.status == 200) {
+            let data = JSON.parse(xhr.responseText)
+            data.map(comment => {
+              content +=
+                `
+            <tr id=${id}>
+              <td class="text-center col" >${comment.id}</td>
+              <td class="text-center col-9" >${comment.comment}</td>
+              <td class="text-center col-2" >${comment.date}</td>
+            </tr>
+            `
+            })
+            addComments(content)
+          }
+        }
+        xhr.send()
+        return "added"
+      }
+      removeComments(id)
+      return "removed"
+    }
+    function addComments(content) {
+      const body = document.getElementById("body")
+      body.innerHTML += content
+      return "done"
+    }
+    function removeComments(id) {
+      try {
+        while (!document.getElementById(id).isNaN) {
+          document.getElementById(id).remove()
+        }
+      } catch {
+        return "done"
+      }
+    }
+    const addTwitterComments = () => {
+      orderCheckbox.checked = false
+      removeComments("orderedData")
+      removeComments("searchResults")
+      getComments(twitterCheckbox.checked, "twitter_comments", "Twitter")
+    }
+    const addYoutubeComments = () => {
+      orderCheckbox.checked = false
+      removeComments("orderedData")
+      removeComments("searchResults")
+      getComments(youtubeCheckbox.checked, "youtube_comments", "Youtube")
+    }
+    const addInstaComments = () => {
+      orderCheckbox.checked = false
+      removeComments("orderedData")
+      removeComments("searchResults")
+      getComments(InstaCheckbox.checked, "insta_comments", "Instagrame")
+    }
+    const addOrderedData = () => {
+      twitterCheckbox.checked = false
+      youtubeCheckbox.checked = false
+      InstaCheckbox.checked = false
+      removeComments("Twitter")
+      removeComments("Youtube")
+      removeComments("Instagrame")
+      removeComments("searchResults")
+      getComments(orderCheckbox.checked, "order_by_date", "orderedData")
+    }
+    const addSearchResults = () => {
+      twitterCheckbox.checked = false
+      youtubeCheckbox.checked = false
+      InstaCheckbox.checked = false
+      orderCheckbox.checked = false
+      removeComments("orderedData")
+      removeComments("Twitter")
+      removeComments("Youtube")
+      removeComments("Instagrame")
+      if(searchInput.value === ''){
+        console.log(searchInput.className += 'form-error')
+        searchInput.className += ' is-invalid'
+        return
+      }else{
+        removeComments("searchResults")
+      }
+      searchInput.className = 'form-control fluid form-control-md'
+      const searchUrl = "search/"+searchInput.value
+      searchInput.value = ''
+      getComments(true, searchUrl, "searchResults")
+    }
+    function handleCheckbox() {
+      if (twitterCheckbox) {
+        twitterCheckbox.addEventListener("click", addTwitterComments, false)
+        youtubeCheckbox.addEventListener("click", addYoutubeComments, false)
+        InstaCheckbox.addEventListener("click", addInstaComments, false)
+        orderCheckbox.addEventListener("click", addOrderedData, false)
+        searchBtn.addEventListener("click", addSearchResults, false)
+      }
+    }
+    handleCheckbox()
+  </script>
+{% endblock %}
+</body>
+
+</html>
