@@ -234,8 +234,6 @@ def get_retweets(scrapper, max_results, urls):
                         for retweet in retweets:
                                 if not (retweet in comments):
                                         comments += retweets
-                                if len(comments) > max_results:
-                                        return comments 
         return comments
 
 def twitter_scraper(max_results, keywords, urls=[]):

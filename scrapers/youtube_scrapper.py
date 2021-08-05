@@ -263,14 +263,12 @@ def youtube_scraper(max_results, keywords=None, urls=None):
         try:
             comments = get_comments(video_url=url)
             loaded_comments += comments
-            break
         except (ValueError, TypeError):
-            print("error")
             pass
     return loaded_comments
 
 if __name__ == "__main__":
     c = youtube_scraper(
         keywords=SearchParameters.KEY_WORDS,
-        max_results=3
+        max_results=Parameters.MAX_RESULTS
     )

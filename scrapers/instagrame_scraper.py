@@ -226,6 +226,6 @@ if __name__ == "__main__":
     c = insta_scraper(
         urls=Parameters.URLS,
         keywords=Parameters.KEY_WORDS,
-        max_results=4
+        max_results=Parameters.MAX_RESULTS
     )
     print(f"num comments ====> {len(c)}")
