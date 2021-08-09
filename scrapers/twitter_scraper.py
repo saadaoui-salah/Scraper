@@ -244,7 +244,7 @@ def twitter_scraper(max_results, keywords, urls=[]):
         for key_word in keywords:
                 scrapper.search(key_word)
                 try:
-                comments += get_retweets(scrapper, max_results, urls)
+                        comments += get_retweets(scrapper, max_results, urls)
                 except:
                         pass
         return comments
