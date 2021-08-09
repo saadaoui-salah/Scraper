@@ -22,8 +22,8 @@ class Parameters:
     MAX_TAGS = 10
     MAX_SCROLL = 5
     HIDE_BROWSER = False
-    USERNAME = ""
-    PASSWORD = ""
+    USERNAME = "saadaoui_salah_"
+    PASSWORD = "saadaouisalah0809"
 
 class InstaScraper:
         
@@ -112,7 +112,7 @@ class InstaScraper:
     def get_content_and_likes(self):
         try:
             self.wait(".//article/div[2]//img")
-            img_link = self.driver.find_element_by_xpath(".//article/div[2]//img").get_attribute("src")
+            img_link = self.driver.find_element_by_xpath(".//article/div[2]//img").get_attribute("srcset")
             try:
                 likes = self.driver.find_element_by_xpath(".//article//section[2]//a//span").text
                 likes = int(likes.replace(" ",""))
@@ -146,6 +146,17 @@ class InstaScraper:
                 self.wait('//span[@aria-label="Charger d’autres commentaires"]')
                 load_comments = self.driver.find_element_by_css_selector('span[aria-label="Charger d’autres commentaires"]')
                 load_comments.click()
+            except (TimeoutException, ElementClickInterceptedException):
+                break
+        while True:
+            try:
+                self.wait('//article/div[3]/div/ul/ul/li//button')
+                load_comments = self.driver.find_element_by_xpath('//article/div[3]/div/ul/ul/li//button')
+                text = self.driver.find_element_by_xpath('//article/div[3]/div/ul/ul/li//button//span').text
+                text = text.lower()
+                text_verification = "hide" in text or "masquer" in text
+                if not text_verification: 
+                    load_comments.click()
             except (TimeoutException, ElementClickInterceptedException):
                 break
         self.wait(".//ul//ul")
@@ -198,7 +209,7 @@ def insta_scraper(max_results, keywords=None, urls=None):
         date = scraper.get_date()
         print(f"date ==> {date}")
         try:
-        content_link, likes = scraper.get_content_and_likes()
+            content_link, likes = scraper.get_content_and_likes()
         except:
             content_link = 'https://'
             likes = 0
