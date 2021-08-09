@@ -22,8 +22,8 @@ class Parameters:
     MAX_TAGS = 10
     MAX_SCROLL = 5
     HIDE_BROWSER = False
-    USERNAME = "saadaoui_salah_"
-    PASSWORD = "saadaouisalah0809"
+    USERNAME = ""
+    PASSWORD = ""
 
 class InstaScraper:
         
