@@ -270,5 +270,5 @@ def youtube_scraper(max_results, keywords=None, urls=None):
 if __name__ == "__main__":
     c = youtube_scraper(
         keywords=SearchParameters.KEY_WORDS,
-        max_results=Parameters.MAX_RESULTS
+        max_results=SearchParameters.MAX_RESULTS
     )
