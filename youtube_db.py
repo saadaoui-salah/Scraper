@@ -63,7 +63,6 @@ class VideosDB():
             id = self.cursor.lastrowid
             return id
         except mysql.connector.errors.IntegrityError:
-            print("This Video is already in data base")
             sql = "SELECT * FROM youtube_videos"
             self.cursor.execute(sql)
             for row in self.cursor:
