@@ -143,11 +143,14 @@ class InstaScraper:
         comment_db.create_table()
         while True:
             try:
-                self.wait('//span[@aria-label="Charger d’autres commentaires"]')
-                load_comments = self.driver.find_element_by_css_selector('span[aria-label="Charger d’autres commentaires"]')
-                load_comments.click()
-            except (TimeoutException, ElementClickInterceptedException):
-                break
+                try:
+                    load_comments = self.driver.find_element_by_css_selector('span[aria-label="Charger d’autres commentaires"]')
+                    load_comments.click()
+                except:
+                    load_comments = self.driver.find_element_by_css_selector('span[aria-label="Load more comments"]')
+                    load_comments.click()
+            except :
+                break    
         while True:
             try:
                 self.wait('//article/div[3]/div/ul/ul/li//button')
