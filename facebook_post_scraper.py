@@ -73,12 +73,10 @@ class PostScraper:
             if reaction_name == "grrr" or reaction_name == 'angry':
                 self.toolbar_data['angry'] = int(reaction_data[0])
         return self.toolbar_data
-            
 
     def get_date(self,post):
-        date = post.find_element_by_class_name('abbr').get_attribute("data-utime")
-        print(date)
-        date = datetime.fromordinal(date)
+        timstamp = int(post.find_element_by_tag_name('abbr').get_attribute("data-utime"))
+        date = datetime.fromtimestamp(timstamp)
         return date
     
     def get_description(self,post):
@@ -95,7 +93,15 @@ class PostScraper:
     def get_num_form_text(self, text):
         text = text.split(' ')
         return text[0]
-
+    def connect_to_db(self):
+        db = FacbookPostDB(
+            host = DBParameters.HOST,
+            user = DBParameters.USER,
+            password = DBParameters.PASSWORD,
+            db_name = DBParameters.DB_NAME,
+            )
+        db.create_table()
+        return db
 
     def get_commments_num(self, post):
         try:
@@ -112,20 +118,19 @@ class PostScraper:
             return 0
 
     def get_posts(self, url, max_results):
-        posts = []
+        new_posts = []
         print(f"Go to {url}...")
         self.go_to_page(url)
         while True:
             new_posts = self.driver.find_elements_by_css_selector('div[data-insertion-position]')
             if len(new_posts) >= max_results:
-                print(f"\t{len(posts)} Posts Scrapped")        
+                print(f"\t{len(new_posts)} Posts Scrapped")        
                 return new_posts[0:max_results+1]
             end  = self.scroll()
             if end:
-
                 break
-        print(f"\t{len(posts)} Posts Scrapped")
-        return posts
+        print(f"\t{len(new_posts)} Posts Scrapped")
+        return new_posts
 
     def scroll(self):
         SCROLL_PAUSE_TIME = 2
@@ -145,8 +150,8 @@ def start_scraper(urls, max_results):
             scraper.skip_login_tab()
         except: 
             pass
-        account = scraper.get_account()
-        print(f"\Page Name: '{account}'")
+        page_name = scraper.get_account()
+        print(f"\Page Name: '{page_name}'")
         for post in posts:
             description = scraper.get_description(post)
             try:
@@ -155,8 +160,25 @@ def start_scraper(urls, max_results):
                 print("[WARNING]: Can't print description")
             date = scraper.get_date(post)
             print(f"\tDate: '{date.month}'")
-            scraper.get_reactions(post)
-            print(f"\treactions: '{scraper.toolbar_data}'")
+            try:
+                scraper.get_reactions(post)
+                print(f"\treactions: '{scraper.toolbar_data}'")
+            except :
+                pass
+            comments_num = scraper.get_commments_num(post)
+            print(f"\tComments Number : {comments_num}")
+            shares_num = scraper.get_shares_num(post)
+            print(f"\tShares Number : {shares_num}")
+            
+            db = scraper.connect_to_db()
+            db.insert_post_info(
+                page_name=page_name,
+                description=description,
+                reactions=scraper.toolbar_data,
+                comments=comments_num,date=date, 
+                shares=shares_num
+            )
+
             scraper.toolbar_data = {
                 'like':0,
                 'love':0,
@@ -166,10 +188,6 @@ def start_scraper(urls, max_results):
                 'sad':0,
                 'angry':0,
             } 
-            comments_num = scraper.get_commments_num(post)
-            print(f"\tComments Number : {comments_num}")
-            shares_num = scraper.get_shares_num(post)
-            print(f"\tShares Number : {shares_num}")
 if __name__ == '__main__':
     start_scraper(
         urls= Parameters.URLS,
