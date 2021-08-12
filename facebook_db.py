@@ -12,7 +12,7 @@ class FacbookPostDB():
 
     def create_table(self):
         self.cursor = self.connection.cursor(buffered=True)  
-        self.cursor.execute(f"""CREATE TABLE IF NOT EXISTS tweets (
+        self.cursor.execute(f"""CREATE TABLE IF NOT EXISTS fb_post (
                 `id` int(100) NOT NULL AUTO_INCREMENT,
                 `page_name` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
                 `description` text COLLATE utf8mb4_unicode_ci,
