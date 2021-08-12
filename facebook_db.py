@@ -23,7 +23,8 @@ class FacbookPostDB():
                 `wow` int(100) NOT NULL,
                 `sad` int(100) NOT NULL,
                 `angry` int(100) NOT NULL,
-                `comments` int(100) NOT NULL,
+                `comments_num` int(100) NOT NULL,
+                `shares_num` int(100) NOT NULL,
                 `published_date` date NOT NULL,
                 PRIMARY KEY (`id`)
                 )
