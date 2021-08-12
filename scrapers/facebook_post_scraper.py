@@ -2,9 +2,15 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import TimeoutException
 import time
 from datetime import datetime
+try:
+    from facebook_db import FacbookPostDB
+    from youtube_scrapper import DBParameters
+except ImportError:
+    from .facebook_db import FacbookPostDB
+    from .youtube_scrapper import DBParameters
+
 
 class Parameters:
     URLS = ["https://www.facebook.com/carta.dz"]
@@ -33,7 +39,7 @@ class PostScraper:
     def skip_login_tab(self):
         self.driver.find_element_by_css_selector("a[data-nocookies='1']").click()
 
-    def go_to_page(self, url, is_post=False):
+    def go_to_page(self, url):
         self.driver.get(url)
         post = self.driver.find_element_by_css_selector('div[data-visualcompletion="ignore-dynamic"]')
         return post 
@@ -43,15 +49,18 @@ class PostScraper:
         return account
 
     def get_reactions(self,post):
-        reactions = post.find_elements_by_xpath('//span[@role="toolbar"]//a[@rel="dialog"]')
+        reactions = post.find_element_by_css_selector('span[role="toolbar"]')
+        reactions = reactions.find_elements_by_css_selector('a[rel="dialog"]')
         for reaction in reactions:
             reaction_data = reaction.get_attribute('aria-label')
-            reaction_data = reaction_data.split(' ')
-            reaction_name = reaction_data[1].lower() 
-            print(reaction_data)
-            if reaction_name == "j'aime" or reaction_name == 'like':
+            try:
+                reaction_data = reaction_data.split(' ')
+                reaction_name = reaction_data[1].lower() 
+            except :
+                continue
+            if reaction_name == "j’aime" or reaction_name == 'like':
                 self.toolbar_data['like'] = int(reaction_data[0])
-            if reaction_name == "j'adore" or reaction_name == 'love':
+            if reaction_name == "j’adore" or reaction_name == 'love':
                 self.toolbar_data['love'] = int(reaction_data[0])
             if reaction_name == "solidaire" or reaction_name == 'care':
                 self.toolbar_data['care'] = int(reaction_data[0])
@@ -73,10 +82,30 @@ class PostScraper:
     
     def get_description(self,post):
         text = '' 
-        lines = post.find_elements_by_css_selector('div[dir]>p')
+        try:
+            post.find_element_by_class_name("see_more_link").click()
+        except :
+            print("error")
+            pass
+        element = post.find_element_by_css_selector("div[class='text_exposed_root']")
+        lines = element.find_elements_by_tag_name("p")
         for line in lines:
-            text += line.text
+            text += ' ' + line.text
         return text
+
+    def get_num_form_text(self, text):
+        text = text.split(' ')
+        return text[0]
+
+
+    def get_commments_num(self, post):
+        attr = "{'tn:'O'}"
+        text = post.find_element_by_css_selector(f"a[data-ft='{attr}']").text
+        return self.get_num_form_text(text)
+
+    def get_shares_num(self, post):
+        text = post.find_element_by_css_selector('a[data-testid="UFI2SharesCount/root"]').text
+        return self.get_num_form_text(text)
 
     def get_posts(self, urls, max_results):
         posts = []
@@ -84,7 +113,7 @@ class PostScraper:
             print(f"Go to {url}...")
             self.go_to_page(url)
             while len(posts) < max_results:
-                new_posts = self.driver.find_elements_by_css_selector('div[data-visualcompletion="ignore-dynamic"]')
+                new_posts = self.driver.find_elements_by_css_selector('div[data-insertion-position]')
                 for post in new_posts:
                     if len(posts) >= max_results:
                         print(f"\t{len(posts)} Posts Scrapped")        
@@ -112,9 +141,12 @@ class PostScraper:
 def start_scraper(urls, max_results):
     scraper = PostScraper()
     posts = scraper.get_posts(urls, max_results)
-    scraper.skip_login_tab()
+    try:
+        scraper.skip_login_tab()
+    except: 
+        pass
     account = scraper.get_account()
-    print(f"\tAccount: '{account}'")
+    print(f"\Page Name: '{account}'")
     for post in posts:
         print(post)
         description = scraper.get_description(post)
@@ -132,6 +164,10 @@ def start_scraper(urls, max_results):
             'sad':0,
             'angry':0,
         } 
+        comments_num = scraper.get_commments_num(post)
+        print(f"\tComments Number : {comments_num}")
+        shares_num = scraper.get_commments_num(post)
+        print(f"\tShares Number : {shares_num}")
 if __name__ == '__main__':
     start_scraper(
         urls= Parameters.URLS,
