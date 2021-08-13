@@ -100,7 +100,7 @@ class PostScraper:
 
     def get_commments_num(self, post):
         attr = "{'tn:'O'}"
-        text = post.find_element_by_css_selector(f"a[data-ft='{attr}']").text
+        text = post.find_element_by_css_selector(f'a[data-ft="{attr}"]').text
         return self.get_num_form_text(text)
 
     def get_shares_num(self, post):
