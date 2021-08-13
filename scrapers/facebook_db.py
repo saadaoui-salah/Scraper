@@ -23,20 +23,21 @@ class FacbookPostDB():
                 `wow` int(100) NOT NULL,
                 `sad` int(100) NOT NULL,
                 `angry` int(100) NOT NULL,
-                `comments` int(100) NOT NULL,
+                `comments_num` int(100) NOT NULL,
+                `shares_num` int(100) NOT NULL,
                 `published_date` date NOT NULL,
                 PRIMARY KEY (`id`)
                 )
             """)
 
-    def insert_post_info(self,page_name,description,reactions,comments,date):
+    def insert_post_info(self,page_name,description,reactions,comments,date,shares):
         sql = "SELECT * FROM tweets"
         self.cursor.execute('SET NAMES utf8mb4')
         self.cursor.execute("SET CHARACTER SET utf8mb4")
         self.cursor.execute("SET character_set_connection=utf8mb4")
         self.cursor.execute(sql)
-        sql = f"""INSERT INTO tweets (page_name, description, like, love, care, haha, wow, sad, angry, comments, published_date) VALUES (%s,%s,%s,%s,%s,%s)"""
-        values = (page_name, description, reactions['like'], reactions['love'], reactions['care'], reactions['haha'], reactions['wow'], reactions['sad'], reactions['angry'], comments,date)
+        sql = f"""INSERT INTO tweets (page_name, description, like, love, care, haha, wow, sad, angry, comments_num, shares_num, published_date) VALUES (%s,%s,%s,%s,%s,%s)"""
+        values = (page_name, description, reactions['like'], reactions['love'], reactions['care'], reactions['haha'], reactions['wow'], reactions['sad'], reactions['angry'], comments, shares, date)
         self.cursor.execute(sql,values)        
         self.connection.commit()
         id = self.cursor.lastrowid
