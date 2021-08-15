@@ -175,8 +175,9 @@ def start_scraper(urls, max_results):
                 page_name=page_name,
                 description=description,
                 reactions=scraper.toolbar_data,
-                comments=comments_num,date=date, 
-                shares=shares_num
+                comments=comments_num,
+                shares=shares_num,
+                date=date 
             )
 
             scraper.toolbar_data = {

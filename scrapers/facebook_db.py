@@ -1,4 +1,3 @@
-import mysql.connector
 try:
     from .youtube_db import MyDatabase
 except:
@@ -12,7 +11,7 @@ class FacbookPostDB():
 
     def create_table(self):
         self.cursor = self.connection.cursor(buffered=True)  
-        self.cursor.execute(f"""CREATE TABLE IF NOT EXISTS tweets (
+        self.cursor.execute(f"""CREATE TABLE IF NOT EXISTS fb_posts (
                 `id` int(100) NOT NULL AUTO_INCREMENT,
                 `page_name` varchar(1000) COLLATE utf8mb4_unicode_ci NOT NULL,
                 `description` text COLLATE utf8mb4_unicode_ci,
@@ -31,12 +30,10 @@ class FacbookPostDB():
             """)
 
     def insert_post_info(self,page_name,description,reactions,comments,date,shares):
-        sql = "SELECT * FROM tweets"
         self.cursor.execute('SET NAMES utf8mb4')
         self.cursor.execute("SET CHARACTER SET utf8mb4")
         self.cursor.execute("SET character_set_connection=utf8mb4")
-        self.cursor.execute(sql)
-        sql = f"""INSERT INTO tweets (page_name, description, like, love, care, haha, wow, sad, angry, comments_num, shares_num, published_date) VALUES (%s,%s,%s,%s,%s,%s)"""
+        sql = f"""INSERT INTO fb_posts (page_name,`description`,`like`,love,care,haha,wow,sad,angry,comments_num,shares_num,published_date) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         values = (page_name, description, reactions['like'], reactions['love'], reactions['care'], reactions['haha'], reactions['wow'], reactions['sad'], reactions['angry'], comments, shares, date)
         self.cursor.execute(sql,values)        
         self.connection.commit()
