@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
+import random
 from datetime import datetime
 try:
     from facebook_db import FacbookPostDB
@@ -14,7 +15,7 @@ except ImportError:
 
 class Parameters:
     URLS = ["https://www.facebook.com/carta.dz"]
-    MAX_RESULTS = 20
+    MAX_RESULTS = 1
     HIDE_BROWSER = False
 
 
@@ -22,6 +23,8 @@ class PostScraper:
     def __init__(self):
         chrome_options = webdriver.ChromeOptions()
         chrome_options.headless = Parameters.HIDE_BROWSER
+        PROXY = f"23.23.23.23:312{random.randint(0,9)}"
+        chrome_options.add_argument('--proxy-server=%s' % PROXY)
         self.driver = webdriver.Chrome(executable_path="C:\Program Files (x86)\chromedriver.exe", options=chrome_options)
         self.last_height = 0
         self.toolbar_data = {
@@ -85,7 +88,7 @@ class PostScraper:
             post.find_element_by_class_name("see_more_link").click()
         except :
             pass
-        lines = post.find_elements_by_xpath("//div[@data-testid='post_message']//p")
+        lines = post.find_elements_by_xpath("div[@data-testid='post_message']//p")
         for line in lines:
             text += ' ' + line.text
         return text
