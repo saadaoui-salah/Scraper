@@ -3,7 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import time
-import random
+import requests
 from datetime import datetime
 try:
     from facebook_db import FacbookPostDB
@@ -15,16 +15,27 @@ except ImportError:
 
 class Parameters:
     URLS = ["https://www.facebook.com/carta.dz"]
-    MAX_RESULTS = 1
+    MAX_RESULTS = 5
     HIDE_BROWSER = False
 
+def get_proxy():
+    r = requests.get("http://pubproxy.com/api/proxy")
+    data = r.json()
+    return data['data'][0]['ipPort']
 
 class PostScraper:
     def __init__(self):
+        proxy = get_proxy()
         chrome_options = webdriver.ChromeOptions()
         chrome_options.headless = Parameters.HIDE_BROWSER
-        PROXY = f"23.23.23.23:312{random.randint(0,9)}"
-        chrome_options.add_argument('--proxy-server=%s' % PROXY)
+        webdriver.DesiredCapabilities.CHROME['proxy']={
+            "httpProxy":proxy,
+            "ftpProxy":proxy,
+            "sslProxy":proxy,
+            
+            "proxyType":"MANUAL",
+            
+        }
         self.driver = webdriver.Chrome(executable_path="C:\Program Files (x86)\chromedriver.exe", options=chrome_options)
         self.last_height = 0
         self.toolbar_data = {
@@ -88,9 +99,9 @@ class PostScraper:
             post.find_element_by_class_name("see_more_link").click()
         except :
             pass
-        lines = post.find_elements_by_xpath("div[@data-testid='post_message']//p")
+        lines = post.find_elements(By.XPATH, ".//div[@data-testid='post_message']//p")
         for line in lines:
-            text += ' ' + line.text
+            text += ' ' + line.get_attribute("textContent")
         return text
 
     def get_num_form_text(self, text):
