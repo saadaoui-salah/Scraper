@@ -136,6 +136,10 @@ class PostScraper:
         print(f"Go to {url}...")
         self.go_to_page(url)
         while True:
+            try:
+                self.skip_login_tab()
+            except: 
+                pass
             new_posts = self.driver.find_elements_by_css_selector('div[data-insertion-position]')
             if len(new_posts) >= max_results:
                 print(f"\t{len(new_posts)} Posts Scrapped")        
@@ -160,10 +164,6 @@ def start_scraper(urls, max_results):
     scraper = PostScraper()
     for url in urls:
         posts = scraper.get_posts(url, max_results)
-        try:
-            scraper.skip_login_tab()
-        except: 
-            pass
         page_name = scraper.get_account()
         print(f"\Page Name: '{page_name}'")
         for post in posts:
