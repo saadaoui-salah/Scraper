@@ -34,10 +34,15 @@ class FacbookPostDB():
         self.cursor.execute('SET NAMES utf8mb4')
         self.cursor.execute("SET CHARACTER SET utf8mb4")
         self.cursor.execute("SET character_set_connection=utf8mb4")
+        sql = "SELECT `id`,`url` FROM fb_posts"
+        self.cursor.execute(sql)
+        for row in self.cursor:
+            if row[1] == url:
+                print("This post is already in data base")
+                return False, row[0]
         sql = f"""INSERT INTO fb_posts (page_name,`description`,`url`,`like`,love,care,haha,wow,sad,angry,comments_num,shares_num,published_date) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
         values = (page_name, description, url, reactions['like'], reactions['love'], reactions['care'], reactions['haha'], reactions['wow'], reactions['sad'], reactions['angry'], comments, shares, date)
         self.cursor.execute(sql,values)        
         self.connection.commit()
         id = self.cursor.lastrowid
-
         return True ,id
