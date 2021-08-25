@@ -54,6 +54,7 @@ class PostScraper:
         self.driver.find_element_by_css_selector("a[data-nocookies='1']").click()
 
     def go_to_page(self, url):
+        self.url = url
         self.driver.get(url)
         post = self.driver.find_element_by_css_selector('div[data-visualcompletion="ignore-dynamic"]')
         return post 
@@ -116,6 +117,10 @@ class PostScraper:
             )
         db.create_table()
         return db
+    
+    def get_post_url(self, post):
+        id = post.find_element_by_css_selector("input[name='ft_ent_identifier']").get_attribute("value")
+        return f"{self.url}/posts/{id}"
 
     def get_commments_num(self, post):
         try:
@@ -183,7 +188,7 @@ def start_scraper(urls, max_results):
             print(f"\tComments Number : {comments_num}")
             shares_num = scraper.get_shares_num(post)
             print(f"\tShares Number : {shares_num}")
-            
+            url = scraper.get_post_url(post)
             db = scraper.connect_to_db()
             db.insert_post_info(
                 page_name=page_name,
@@ -191,7 +196,8 @@ def start_scraper(urls, max_results):
                 reactions=scraper.toolbar_data,
                 comments=comments_num,
                 shares=shares_num,
-                date=date 
+                date=date,
+                url=url
             )
 
             scraper.toolbar_data = {
