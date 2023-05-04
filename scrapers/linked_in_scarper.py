@@ -21,8 +21,8 @@ def get_data(response):
     return data
     
 login_information = {
-    'session_key':'salahsaadaoui8@gmail.com',
-    'session_password':'zehzeh0809',
+    'session_key':'*****@***.**',
+    'session_password':'*****',
     'loginCsrfParam': csrf,
 }
 
